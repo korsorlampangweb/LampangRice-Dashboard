@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LAMPANG RICE VALUE CHAIN INTELLIGENCE</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-thai@latest/thai-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-thai@latest/thai-500-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-thai@latest/thai-600-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-thai@latest/thai-700-normal.css">
+<style>
+  :root{
+    --olive-dark:#34432F;
+    --olive:#687B4E;
+    --olive-light:#A8B58A;
+    --ivory:#F7F7F1;
+    --orange:#E99A45;
+    --charcoal:#30352E;
+  }
+  *{font-family:'Noto Sans Thai',sans-serif;}
+  body{background:var(--ivory);color:var(--charcoal);}
+  .sidebar{background:var(--olive-dark);}
+  .nav-item{transition:all .25s ease;}
+  .nav-item:hover{background:rgba(168,181,138,.15);padding-left:1.25rem;}
+  .nav-item.active{background:linear-gradient(90deg,var(--olive),transparent);border-left:3px solid var(--orange);}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(48,53,46,.06);border:1px solid #EEF0E6;}
+  .kpi-card{background:#fff;border-radius:14px;padding:18px;border:1px solid #EEF0E6;box-shadow:0 2px 8px rgba(48,53,46,.05);transition:transform .2s, box-shadow .2s;position:relative;overflow:hidden;}
+  .kpi-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(48,53,46,.12);}
+  .kpi-card::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:var(--olive);}
+  .kpi-card.accent::before{background:var(--orange);}
+  .kpi-label{font-size:13px;color:#6b7280;font-weight:500;}
+  .kpi-value{font-size:28px;font-weight:700;color:var(--olive-dark);margin-top:4px;line-height:1.1;}
+  .kpi-unit{font-size:12px;color:#9ca3af;margin-top:2px;}
+  .page{display:none;}
+  .page.active{display:block;animation:fadeIn .4s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .section-title{font-size:18px;font-weight:700;color:var(--olive-dark);border-left:4px solid var(--orange);padding-left:10px;margin-bottom:14px;}
+  .chart-title{font-size:14px;font-weight:600;color:var(--olive-dark);margin-bottom:6px;}
+  .chart-sub{font-size:11px;color:#9ca3af;margin-bottom:10px;}
+  .insight-box{background:linear-gradient(135deg,#F7F7F1,#fff);border:1px solid #E5E7D8;border-left:4px solid var(--olive);border-radius:10px;padding:14px;margin-bottom:10px;}
+  .insight-box.warn{border-left-color:var(--orange);}
+  .insight-box h4{font-size:13px;font-weight:700;color:var(--olive-dark);margin-bottom:4px;}
+  .insight-box p{font-size:12.5px;color:#4b5563;line-height:1.6;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;}
+  .badge-olive{background:#E8EDDC;color:var(--olive-dark);}
+  .badge-orange{background:#FDE8CD;color:#B8731E;}
+  table.data{width:100%;border-collapse:collapse;font-size:13px;}
+  table.data th{background:var(--olive-dark);color:#fff;padding:9px 10px;text-align:left;font-weight:600;position:sticky;top:0;}
+  table.data td{padding:8px 10px;border-bottom:1px solid #EEF0E6;}
+  table.data tr:hover td{background:#F7F7F1;}
+  .scroll-table{max-height:340px;overflow:auto;border-radius:10px;border:1px solid #EEF0E6;}
+  .filter-bar{background:#fff;border:1px solid #EEF0E6;border-radius:12px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  select,input[type=text]{background:#F7F7F1;border:1px solid #E5E7D8;border-radius:8px;padding:6px 10px;font-size:13px;color:var(--charcoal);outline:none;}
+  select:focus,input:focus{border-color:var(--olive);}
+  .quadrant{position:relative;width:100%;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#fafaf5,#fafaf5 10px,#f4f4ec 10px,#f4f4ec 20px);border:1px solid #E5E7D8;border-radius:12px;overflow:hidden;}
+  .q-label{position:absolute;font-size:11px;font-weight:700;color:var(--olive-dark);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px;}
+  .dot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--orange);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transform:translate(-50%,-50%);cursor:pointer;transition:transform .2s;}
+  .dot:hover{transform:translate(-50%,-50%) scale(1.4);}
+  .dot span{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;background:var(--olive-dark);color:#fff;padding:2px 6px;border-radius:4px;opacity:0;transition:opacity .2s;}
+  .dot:hover span{opacity:1;}
+  .value-chain-node{background:#fff;border:2px solid var(--olive-light);border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--olive-dark);transition:all .2s;}
+  .value-chain-node:hover{border-color:var(--orange);transform:translateY(-2px);}
+  .swot-card{border-radius:12px;padding:14px;min-height:180px;}
+  .swot-s{background:linear-gradient(135deg,#E8EDDC,#fff);border:1px solid #C5D1A8;}
+  .swot-w{background:linear-gradient(135deg,#FDE8CD,#fff);border:1px solid #F5C98A;}
+  .swot-o{background:linear-gradient(135deg,#E0ECF5,#fff);border:1px solid #B8D1E5;}
+  .swot-t{background:linear-gradient(135deg,#F5E0E0,#fff);border:1px solid #E5B8B8;}
+  .map-province{fill:var(--olive-light);stroke:#fff;stroke-width:1.5;transition:fill .2s;cursor:pointer;}
+  .map-province:hover{fill:var(--orange);}
+  .map-province.highlight{fill:var(--orange);}
+  .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--olive-light);border-radius:4px;}
+  ::-webkit-scrollbar-track{background:#F7F7F1;}
+  .tab-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;color:#6b7280;background:#F7F7F1;cursor:pointer;transition:all .2s;}
+  .tab-btn.active{background:var(--olive-dark);color:#fff;}
+  .progress-bar{height:6px;background:#EEF0E6;border-radius:3px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--olive),var(--olive-light));border-radius:3px;}
+  @media(max-width:768px){
+    .sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:50;transition:left .3s;}
+    .sidebar.open{left:0;}
+    .kpi-value{font-size:22px;}
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar w-64 min-h-screen text-white flex-shrink-0">
+    <div class="p-5 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[#E99A45] to-[#B8731E] flex items-center justify-center text-xl">🌾</div>
+        <div>
+          <div class="text-[11px] text-[#A8B58A] tracking-wider">LAMPANG</div>
+          <div class="text-sm font-bold leading-tight">Rice Value Chain<br/>Intelligence</div>
+        </div>
+      </div>
+    </div>
+    <nav class="py-4 text-sm">
+      <div class="px-5 pb-2 text-[10px] tracking-widest text-[#A8B58A]">DASHBOARD</div>
+      <a data-page="p1" class="nav-item active flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>01</span><span>Executive Overview</span></a>
+      <a data-page="p2" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>02</span><span>Rice Production</span></a>
+      <a data-page="p3" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>03</span><span>Productivity & Geo</span></a>
+      <a data-page="p4" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>04</span><span>Water & Climate</span></a>
+      <a data-page="p5" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>05</span><span>Collection & Milling</span></a>
+      <a data-page="p6" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>06</span><span>Market Intelligence</span></a>
+      <a data-page="p7" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>07</span><span>Processing & Innovation</span></a>
+      <a data-page="p8" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>08</span><span>Value Chain Strategy</span></a>
+      <a data-page="p9" class="nav-item flex items-center gap-3 px-5 py-2.5 cursor-pointer"><span>09</span><span>Data Governance</span></a>
+    </nav>
+    <div class="p-5 mt-4 border-t border-white/10 text-[11px] text-[#A8B58A] leading-relaxed">
+      <div class="font-bold text-white mb-1">กลุ่มสารสนเทศการเกษตร</div>
+      สำนักงานเกษตรและสหกรณ์<br/>จังหวัดลำปาง
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 min-w-0">
+    <!-- HEADER -->
+    <header class="bg-white border-b border-[#EEF0E6] sticky top-0 z-40">
+      <div class="flex items-center justify-between px-6 py-3">
+        <div class="flex items-center gap-3">
+          <button id="menuBtn" class="md:hidden text-xl">☰</button>
+          <div>
+            <div class="text-[11px] text-[#9ca3af] tracking-wider">LAMPANG RICE VALUE CHAIN INTELLIGENCE</div>
+            <h1 id="pageTitle" class="text-lg font-bold text-[#34432F]">ภาพรวมสถานการณ์ห่วงโซ่คุณค่าข้าวจังหวัดลำปาง</h1>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center gap-2 text-xs text-[#6b7280]">
+          <span class="badge badge-olive">Data Update: 20 Nov 2026</span>
+          <span class="badge badge-orange">19 Data Sheets</span>
+        </div>
+      </div>
+      <!-- GLOBAL FILTER -->
+      <div class="px-6 pb-3">
+        <div class="filter-bar">
+          <div class="flex items-center gap-2 text-xs font-semibold text-[#34432F]">
+            <span>🔍</span><span>Global Filters:</span>
+          </div>
+          <select id="fYear"><option>ทุกปี</option><option>2566</option><option>2567</option><option selected>2568</option></select>
+          <select id="fDistrict"><option value="">ทุกอำเภอ</option></select>
+          <select id="fSubdistrict"><option>ทุกตำบล</option></select>
+          <select id="fRiceType"><option>ทุกประเภทข้าว</option><option>ข้าวนาปี</option><option>ข้าวนาปรัง</option></select>
+          <select id="fRiceKind"><option>ทุกชนิด</option><option>ข้าวเจ้า</option><option>ข้าวเหนียว</option></select>
+          <button class="ml-auto text-xs text-[#687B4E] font-semibold hover:underline" onclick="resetFilters()">↻ Reset</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6">
+
+    <!-- ============ PAGE 1: EXECUTIVE OVERVIEW ============ -->
+    <section id="p1" class="page active">
+      <!-- KPI -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="kpi-card"><div class="kpi-label">เกษตรกรผู้ปลูกข้าว</div><div class="kpi-value">52,847</div><div class="kpi-unit">ครัวเรือน · ปี 2568</div></div>
+        <div class="kpi-card"><div class="kpi-label">เนื้อที่เพาะปลูก</div><div class="kpi-value">823,450</div><div class="kpi-unit">ไร่ · ปี 2568</div></div>
+        <div class="kpi-card"><div class="kpi-label">เนื้อที่เก็บเกี่ยว</div><div class="kpi-value">798,210</div><div class="kpi-unit">ไร่ · ปี 2568</div></div>
+        <div class="kpi-card accent"><div class="kpi-label">ปริมาณผลผลิต</div><div class="kpi-value">342,850</div><div class="kpi-unit">ตัน · ปี 2568</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผลผลิตต่อไร่</div><div class="kpi-value">429</div><div class="kpi-unit">กก./ไร่ · ปี 2568</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผลผลิตต่อครัวเรือน</div><div class="kpi-value">6.49</div><div class="kpi-unit">ตัน/ครัวเรือน</div></div>
+        <div class="kpi-card"><div class="kpi-label">พื้นที่ GAP</div><div class="kpi-value">48,210</div><div class="kpi-unit">ไร่ · 5.85% ของพื้นที่</div></div>
+        <div class="kpi-card"><div class="kpi-label">ต้นทุนการผลิต</div><div class="kpi-value">5,420</div><div class="kpi-unit">บาท/ไร่ · นาปี</div></div>
+        <div class="kpi-card accent"><div class="kpi-label">โรงสี/สถานประกอบการ</div><div class="kpi-value">287</div><div class="kpi-unit">แห่ง · ทะเบียนปัจจุบัน</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผู้ประกอบการแปรรูป</div><div class="kpi-value">142</div><div class="kpi-unit">กลุ่ม/ราย</div></div>
+      </div>
+
+      <!-- Row 1 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card p-4 lg:col-span-2">
+          <div class="chart-title">Rice Production by District · ผลผลิตข้าวรายอำเภอ</div>
+          <div class="chart-sub">ปริมาณผลผลิต (ตัน) และเนื้อที่เพาะปลูก (ไร่) ปี 2568 · แหล่งข้อมูล: area</div>
+          <canvas id="c1_1" height="110"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Rice Production Composition · สัดส่วนนาปี/นาปรัง</div>
+          <div class="chart-sub">ปี 2568 · แหล่งข้อมูล: area</div>
+          <canvas id="c1_2" height="180"></canvas>
+          <div class="mt-3 text-xs text-[#6b7280] space-y-1">
+            <div><span class="legend-dot" style="background:#34432F"></span>นาปี 684,520 ไร่ (83.1%)</div>
+            <div><span class="legend-dot" style="background:#E99A45"></span>นาปรัง 138,930 ไร่ (16.9%)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Value Chain Map -->
+      <div class="card p-4">
+        <div class="chart-title">Rice Value Chain Map · แผนภาพห่วงโซ่คุณค่าข้าว</div>
+        <div class="chart-sub">โครงสร้างต้นน้ำ กลางน้ำ ปลายน้ำ · ข้อมูลจาก 19 Sheets</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <div class="bg-[#F7F7F1] rounded-xl p-4 border border-[#E5E7D8]">
+            <div class="text-xs font-bold text-[#E99A45] tracking-wider mb-2">UPSTREAM · ต้นน้ำ</div>
+            <div class="space-y-2">
+              <div class="value-chain-node">👨‍🌾 เกษตรกร 52,847 ครัวเรือน</div>
+              <div class="value-chain-node">🌱 เมล็ดพันธุ์ · ราคาเมล็ดพันธุ์ข้าว</div>
+              <div class="value-chain-node">🌾 พื้นที่เพาะปลูก 823,450 ไร่</div>
+              <div class="value-chain-node">💧 ระบบชลประทาน + บ่อจิ๋ว</div>
+              <div class="value-chain-node">📜 มาตรฐาน GAP 48,210 ไร่</div>
+              <div class="value-chain-node">🏛️ ศูนย์ข้าวชุมชน</div>
+            </div>
+          </div>
+          <div class="bg-[#F7F7F1] rounded-xl p-4 border border-[#E5E7D8]">
+            <div class="text-xs font-bold text-[#E99A45] tracking-wider mb-2">MIDSTREAM · กลางน้ำ</div>
+            <div class="space-y-2">
+              <div class="value-chain-node">🏭 โรงสีขนาดเล็ก-กลาง</div>
+              <div class="value-chain-node">📦 ท่าข้าว + จุดรวบรวม</div>
+              <div class="value-chain-node">🛒 ผู้ค้าส่ง + นายหน้า</div>
+              <div class="value-chain-node">🏢 ผู้ประกอบการแปรรูป 142 ราย</div>
+              <div class="value-chain-node">👥 วิสาหกิจชุมชน</div>
+              <div class="value-chain-node">🔗 ผู้ส่งออก (ตามทะเบียน)</div>
+            </div>
+          </div>
+          <div class="bg-[#F7F7F1] rounded-xl p-4 border border-[#E5E7D8]">
+            <div class="text-xs font-bold text-[#E99A45] tracking-wider mb-2">DOWNSTREAM · ปลายน้ำ</div>
+            <div class="space-y-2">
+              <div class="value-chain-node">🍚 ผลิตภัณฑ์ OTOP จากข้าว</div>
+              <div class="value-chain-node">🎁 ข้าวแต๋น · ข้าวกล้องสามกษัตริย์</div>
+              <div class="value-chain-node">🏷️ การสร้างแบรนด์</div>
+              <div class="value-chain-node">🏪 ตลาดภายในจังหวัด</div>
+              <div class="value-chain-node">🚚 ตลาดภายนอกจังหวัด</div>
+              <div class="value-chain-node">🌏 ตลาดส่งออก</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Rice Production Trend · แนวโน้มการผลิตย้อนหลัง</div>
+          <div class="chart-sub">พื้นที่เพาะปลูก (ไร่) และผลผลิต (ตัน) · 2564-2568</div>
+          <canvas id="c1_3" height="130"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Production vs Market Price · เปรียบเทียบผลผลิตกับราคา</div>
+          <div class="chart-sub">ราคาข้าวเจ้าความชื้น 15% (บาท/ตัน) · ปี 2564-2568</div>
+          <canvas id="c1_4" height="130"></canvas>
+        </div>
+      </div>
+
+      <!-- Executive Insight -->
+      <div class="card p-4">
+        <div class="chart-title">Executive Insight · บทวิเคราะห์สำหรับผู้บริหาร</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+          <div class="insight-box"><h4>🌾 Production Strength</h4><p>อำเภอ<strong>เมืองลำปาง</strong> และ<strong>เกาะคา</strong> มีปริมาณผลผลิตรวมสูงสุด (82,450 และ 68,210 ตัน) คิดเป็น 24.1% และ 19.9% ของจังหวัด ตามลำดับ เป็นฐานการผลิตหลักของจังหวัด</p></div>
+          <div class="insight-box warn"><h4>⚠️ Productivity Gap</h4><p>อำเภอ<strong>แม่พริก</strong> และ<strong>สบปราบ</strong> มีผลผลิตต่อไร่ต่ำสุดที่ 365 และ 378 กก./ไร่ ต่ำกว่าค่าเฉลี่ยจังหวัด 15-18% ควรได้รับการส่งเสริมด้านเทคโนโลยีและเมล็ดพันธุ์</p></div>
+          <div class="insight-box warn"><h4>💧 Water Risk</h4><p>พื้นที่รับน้ำชลประทานครอบคลุมเพียง <strong>32.4%</strong> ของพื้นที่เพาะปลูกข้าว อำเภอ<strong>แม่พริก, งาว</strong> พึ่งพาน้ำฝนสูง ควรพัฒนาบ่อจิ๋วและอ่างขนาดเล็กเพิ่ม</p></div>
+          <div class="insight-box"><h4>💰 Market Opportunity</h4><p>ข้าวเหนียวมีความผันผวนของราคาสูง (ช่วงราคา 14,200-19,800 บาท/ตัน) มีโอกาสสร้างรายได้ดีหากจัดการความชื้นและคุณภาพได้</p></div>
+          <div class="insight-box"><h4>🎁 Value Addition</h4><p>มีผลิตภัณฑ์ OTOP จากข้าว <strong>86 รายการ</strong> และผู้ประกอบการแปรรูป 142 ราย สามารถยกระดับเป็นสินค้าพรีเมียมและเชื่อมโยงตลาดสมัยใหม่</p></div>
+          <div class="insight-box"><h4>📊 GAP Coverage</h4><p>พื้นที่ GAP 48,210 ไร่ คิดเป็น <strong>5.85%</strong> ของพื้นที่เพาะปลูก ยังมีโอกาสขยายการรับรองมาตรฐานเพื่อเพิ่มมูลค่าและเปิดตลาดใหม่</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 2: RICE PRODUCTION ============ -->
+    <section id="p2" class="page">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div class="kpi-card"><div class="kpi-label">เกษตรกร</div><div class="kpi-value">52,847</div><div class="kpi-unit">ครัวเรือน</div></div>
+        <div class="kpi-card"><div class="kpi-label">เพาะปลูก</div><div class="kpi-value">823,450</div><div class="kpi-unit">ไร่</div></div>
+        <div class="kpi-card"><div class="kpi-label">เก็บเกี่ยว</div><div class="kpi-value">798,210</div><div class="kpi-unit">ไร่</div></div>
+        <div class="kpi-card accent"><div class="kpi-label">ผลผลิต</div><div class="kpi-value">342,850</div><div class="kpi-unit">ตัน</div></div>
+        <div class="kpi-card"><div class="kpi-label">รอบเพาะปลูก</div><div class="kpi-value">1.8</div><div class="kpi-unit">รอบ/ปี</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผลผลิต/ไร่</div><div class="kpi-value">429</div><div class="kpi-unit">กก./ไร่</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผลผลิต/ครัวเรือน</div><div class="kpi-value">6.49</div><div class="kpi-unit">ตัน</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Rice Production by District · ผลผลิตรายอำเภอ</div>
+          <div class="chart-sub">แยกนาปี/นาปรัง · ปี 2568 · แหล่งข้อมูล: area</div>
+          <canvas id="c2_1" height="140"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Rice Variety Structure · โครงสร้างชนิดข้าว</div>
+          <div class="chart-sub">ข้าวเจ้า vs ข้าวเหนียว · ปี 2568</div>
+          <canvas id="c2_2" height="140"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card p-4 lg:col-span-2">
+          <div class="chart-title">Rice Production Calendar · ปฏิทินผลผลิตรายเดือน</div>
+          <div class="chart-sub">ข้อมูลจริง + ประมาณการ · ปี 2568</div>
+          <div class="overflow-x-auto">
+            <table class="data mt-2">
+              <thead><tr><th>เดือน</th><th>ม.ค.</th><th>ก.พ.</th><th>มี.ค.</th><th>เม.ย.</th><th>พ.ค.</th><th>มิ.ย.</th><th>ก.ค.</th><th>ส.ค.</th><th>ก.ย.</th><th>ต.ค.</th><th>พ.ย.</th><th>ธ.ค.</th></tr></thead>
+              <tbody>
+                <tr><td class="font-semibold">นาปี</td><td>-</td><td>-</td><td>-</td><td>-</td><td>เริ่มหว่าน</td><td>เติบโต</td><td>เติบโต</td><td>ตั้งท้อง</td><td>ออกรวง</td><td>เก็บเกี่ยว</td><td>เก็บเกี่ยว</td><td>สิ้นสุด</td></tr>
+                <tr><td class="font-semibold">นาปรัง</td><td>เก็บเกี่ยว</td><td>เก็บเกี่ยว</td><td>เริ่มหว่าน</td><td>เติบโต</td><td>เก็บเกี่ยว</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                <tr><td class="font-semibold">ปริมาณ (ตัน)</td><td>18,420</td><td>22,150</td><td>14,820</td><td>8,210</td><td>12,450</td><td>5,120</td><td>4,820</td><td>6,210</td><td>15,840</td><td>68,420</td><td>125,210</td><td>41,180</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Monthly Production Curve · แนวโน้มรายเดือน</div>
+          <div class="chart-sub">ตัน · ปี 2568</div>
+          <canvas id="c2_3" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Production Distribution · การกระจายผลผลิต</div>
+          <div class="chart-sub">ภายใน vs ภายนอกจังหวัด</div>
+          <canvas id="c2_4" height="120"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Production Growth · อัตราการขยายตัว</div>
+          <div class="chart-sub">% ต่อปี · 2565-2568</div>
+          <canvas id="c2_5" height="120"></canvas>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Rice Production by Subdistrict · ผลผลิตรายตำบล (Top 15)</div>
+        <div class="chart-sub">ตัน · ปี 2568 · แหล่งข้อมูล: area</div>
+        <div class="scroll-table mt-2">
+          <table class="data" id="t2_1">
+            <thead><tr><th>อันดับ</th><th>อำเภอ</th><th>ตำบล</th><th>เนื้อที่เพาะปลูก (ไร่)</th><th>ผลผลิต (ตัน)</th><th>ผลผลิต/ไร่ (กก.)</th></tr></thead>
+            <tbody id="tb2_1"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <h4>🎯 Strategic Insight · ข้อเสนอเชิงยุทธศาสตร์</h4>
+        <p>อำเภอ<strong>เมืองลำปาง, เกาะคา, แม่ทะ</strong> มีปริมาณผลผลิตรวมสูงและชนิดข้าวหลากหลาย เหมาะสมเป็นพื้นที่เป้าหมายในการพัฒนาเป็น <strong>Strategic Rice Zone</strong> เชื่อมโยงกับตลาดพรีเมียม ข้าวเหนียวมีสัดส่วน 42.3% ของผลผลิตทั้งหมด มีโอกาสพัฒนาเป็นสินค้าเฉพาะถิ่น (GI) เพื่อสร้างมูลค่าเพิ่ม</p>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 3: PRODUCTIVITY ============ -->
+    <section id="p3" class="page">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="kpi-card"><div class="kpi-label">เพาะปลูก/ครัวเรือน</div><div class="kpi-value">15.58</div><div class="kpi-unit">ไร่/ครัวเรือน</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผลผลิต/ไร่</div><div class="kpi-value">429</div><div class="kpi-unit">กก./ไร่</div></div>
+        <div class="kpi-card accent"><div class="kpi-label">ผลผลิต/ครัวเรือน</div><div class="kpi-value">6.49</div><div class="kpi-unit">ตัน/ครัวเรือน</div></div>
+        <div class="kpi-card"><div class="kpi-label">พื้นที่ GAP</div><div class="kpi-value">48,210</div><div class="kpi-unit">ไร่</div></div>
+        <div class="kpi-card"><div class="kpi-label">เกษตรกร</div><div class="kpi-value">52,847</div><div class="kpi-unit">ครัวเรือน</div></div>
+        <div class="kpi-card"><div class="kpi-label">เก็บเกี่ยว</div><div class="kpi-value">798,210</div><div class="kpi-unit">ไร่</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">3D Productivity Analysis · วิเคราะห์ผลิตภาพ 3 มิติ</div>
+          <div class="chart-sub">Land / Household / Farm Scale · รายอำเภอ</div>
+          <canvas id="c3_1" height="150"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Productivity Quadrant Matrix · แมทริกซ์จัดกลุ่มอำเภอ</div>
+          <div class="chart-sub">แกน X: พื้นที่/ครัวเรือน · แกน Y: ผลผลิต/ไร่ · เส้นแบ่ง = มัธยฐาน</div>
+          <div class="quadrant mt-2" id="quadrant">
+            <div class="q-label" style="top:8px;left:8px;background:#E8EDDC">Q2 Low Scale · High Yield</div>
+            <div class="q-label" style="top:8px;right:8px;background:#D4E4C4">Q1 High Scale · High Yield</div>
+            <div class="q-label" style="bottom:8px;left:8px;background:#FDE8CD">Q3 Low Scale · Low Yield</div>
+            <div class="q-label" style="bottom:8px;right:8px;background:#F5D4A8">Q4 High Scale · Low Yield</div>
+            <!-- axes -->
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(52,67,47,.3);"></div>
+            <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(52,67,47,.3);"></div>
+            <div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:10px;color:#687B4E;">← พื้นที่/ครัวเรือน (ไร่) →</div>
+            <div style="position:absolute;top:50%;left:4px;transform:translateY(-50%) rotate(-90deg);transform-origin:left;font-size:10px;color:#687B4E;">← ผลผลิต/ไร่ (กก.) →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Lampang Province Map · แผนที่จังหวัดลำปาง</div>
+        <div class="chart-sub">พื้นที่ผลิตข้าวรายอำเภอ · คลิกเพื่อดูรายละเอียด</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+          <div>
+            <div class="text-xs font-semibold text-[#34432F] mb-2">🗺️ พื้นที่ผลิตข้าวรายอำเภอ (ไร่)</div>
+            <svg viewBox="0 0 400 400" class="w-full">
+              <path class="map-province" d="M50,80 L120,60 L180,90 L160,160 L90,170 Z"><title>เมืองลำปาง 92,450 ไร่</title></path>
+              <path class="map-province" d="M180,90 L260,70 L280,140 L220,170 L160,160 Z"><title>แม่ทะ 78,210 ไร่</title></path>
+              <path class="map-province" d="M90,170 L160,160 L180,230 L110,250 Z"><title>เกาะคา 85,420 ไร่</title></path>
+              <path class="map-province" d="M160,160 L220,170 L240,240 L180,230 Z"><title>แจ้ห่ม 68,210 ไร่</title></path>
+              <path class="map-province" d="M220,170 L280,140 L330,200 L280,240 L240,240 Z"><title>วังเหนือ 72,840 ไร่</title></path>
+              <path class="map-province" d="M50,80 L90,170 L110,250 L40,240 L20,150 Z"><title>ห้างฉัตร 62,450 ไร่</title></path>
+              <path class="map-province" d="M110,250 L180,230 L200,310 L130,320 Z"><title>เสริมงาม 48,210 ไร่</title></path>
+              <path class="map-province" d="M180,230 L240,240 L260,320 L200,310 Z"><title>งาว 58,420 ไร่</title></path>
+              <path class="map-province" d="M240,240 L280,240 L330,200 L360,280 L300,320 L260,320 Z"><title>เถิน 54,820 ไร่</title></path>
+              <path class="map-province" d="M280,140 L330,200 L360,280 L380,180 L340,100 Z"><title>แม่เมาะ 42,150 ไร่</title></path>
+              <path class="map-province" d="M130,320 L200,310 L220,380 L150,390 Z"><title>แม่พริก 28,420 ไร่</title></path>
+              <path class="map-province" d="M200,310 L260,320 L300,320 L280,390 L220,380 Z"><title>สบปราบ 24,850 ไร่</title></path>
+              <path class="map-province" d="M300,320 L360,280 L380,360 L320,390 L280,390 Z"><title>เมืองปาน 15,000 ไร่</title></path>
+            </svg>
+          </div>
+          <div class="md:col-span-2">
+            <div class="text-xs font-semibold text-[#34432F] mb-2">📍 พื้นที่ GAP · ชลประทาน · ศูนย์ข้าวชุมชน</div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+                <div class="font-bold text-[#34432F]">พื้นที่ GAP</div>
+                <div class="text-xl font-bold text-[#E99A45]">48,210</div>
+                <div class="text-[#6b7280]">ไร่ · 5.85%</div>
+                <div class="mt-2 text-[10px]">อำเภอสูงสุด: เมืองลำปาง 8,420 ไร่</div>
+              </div>
+              <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+                <div class="font-bold text-[#34432F]">พื้นที่ชลประทาน</div>
+                <div class="text-xl font-bold text-[#687B4E]">266,840</div>
+                <div class="text-[#6b7280]">ไร่ · 32.4%</div>
+                <div class="mt-2 text-[10px]">อำเภอสูงสุด: เมืองลำปาง 48,210 ไร่</div>
+              </div>
+              <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+                <div class="font-bold text-[#34432F]">ศูนย์ข้าวชุมชน</div>
+                <div class="text-xl font-bold text-[#34432F]">78</div>
+                <div class="text-[#6b7280]">แห่ง</div>
+                <div class="mt-2 text-[10px]">ครอบคลุม 100 อำเภอ</div>
+              </div>
+            </div>
+            <div class="mt-3 scroll-table">
+              <table class="data">
+                <thead><tr><th>อำเภอ</th><th>เพาะปลูก/ครัวเรือน</th><th>ผลผลิต/ไร่</th><th>ผลผลิต/ครัวเรือน</th><th>Quadrant</th></tr></thead>
+                <tbody>
+                  <tr><td>เมืองลำปาง</td><td>14.2</td><td>468</td><td>6.65</td><td><span class="badge badge-olive">Q1</span></td></tr>
+                  <tr><td>เกาะคา</td><td>16.8</td><td>452</td><td>7.59</td><td><span class="badge badge-olive">Q1</span></td></tr>
+                  <tr><td>แม่ทะ</td><td>18.4</td><td>445</td><td>8.19</td><td><span class="badge badge-olive">Q1</span></td></tr>
+                  <tr><td>แจ้ห่ม</td><td>12.6</td><td>438</td><td>5.52</td><td><span class="badge badge-orange">Q2</span></td></tr>
+                  <tr><td>ห้างฉัตร</td><td>11.8</td><td>425</td><td>5.02</td><td><span class="badge badge-orange">Q2</span></td></tr>
+                  <tr><td>วังเหนือ</td><td>15.2</td><td>412</td><td>6.26</td><td><span class="badge badge-olive">Q1</span></td></tr>
+                  <tr><td>เสริมงาม</td><td>13.4</td><td>398</td><td>5.33</td><td><span class="badge badge-orange">Q2</span></td></tr>
+                  <tr><td>งาว</td><td>17.2</td><td>385</td><td>6.62</td><td><span class="badge badge-orange">Q4</span></td></tr>
+                  <tr><td>เถิน</td><td>16.4</td><td>402</td><td>6.59</td><td><span class="badge badge-olive">Q1</span></td></tr>
+                  <tr><td>แม่เมาะ</td><td>14.8</td><td>392</td><td>5.80</td><td><span class="badge badge-orange">Q2</span></td></tr>
+                  <tr><td>แม่พริก</td><td>10.2</td><td>365</td><td>3.72</td><td><span class="badge badge-orange">Q3</span></td></tr>
+                  <tr><td>สบปราบ</td><td>11.4</td><td>378</td><td>4.31</td><td><span class="badge badge-orange">Q3</span></td></tr>
+                  <tr><td>เมืองปาน</td><td>9.8</td><td>388</td><td>3.80</td><td><span class="badge badge-orange">Q2</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <h4>🎯 พื้นที่เป้าหมายการพัฒนา</h4>
+        <p><strong>Q1 (High Scale · High Yield)</strong> เมืองลำปาง, เกาะคา, แม่ทะ, วังเหนือ, เถิน — รักษาผลิตภาพและขยายมาตรฐาน GAP<br/>
+        <strong>Q2 (Low Scale · High Yield)</strong> แจ้ห่ม, ห้างฉัตร, เสริมงาม, แม่เมาะ, เมืองปาน — เพิ่มประสิทธิภาพขนาดการผลิต<br/>
+        <strong>Q3 (Low Scale · Low Yield)</strong> แม่พริก, สบปราบ — <span class="text-[#E99A45] font-semibold">พื้นที่เป้าหมายเร่งด่วน</span> ต้องพัฒนาทั้งขนาดและผลิตภาพ</p>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 4: WATER ============ -->
+    <section id="p4" class="page">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div class="kpi-card"><div class="kpi-label">พื้นที่รับน้ำชลประทาน</div><div class="kpi-value">266,840</div><div class="kpi-unit">ไร่</div></div>
+        <div class="kpi-card"><div class="kpi-label">บ่อจิ๋วในไร่นา</div><div class="kpi-value">3,842</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card accent"><div class="kpi-label">ปริมาณน้ำฝน</div><div class="kpi-value">1,142</div><div class="kpi-unit">มม./ปี</div></div>
+        <div class="kpi-card"><div class="kpi-label">น้ำอ่างใหญ่/กลาง</div><div class="kpi-value">248.4</div><div class="kpi-unit">ล้าน ลบ.ม.</div></div>
+        <div class="kpi-card"><div class="kpi-label">น้ำอ่างขนาดเล็ก</div><div class="kpi-value">42.8</div><div class="kpi-unit">ล้าน ลบ.ม.</div></div>
+        <div class="kpi-card"><div class="kpi-label">สถานีสูบน้ำ</div><div class="kpi-value">186</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">อ่างขนาดเล็ก</div><div class="kpi-value">32</div><div class="kpi-unit">แห่ง</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Monthly Rainfall Pattern · ปริมาณน้ำฝนรายเดือน</div>
+          <div class="chart-sub">มม. · ค่าเฉลี่ย 2564-2568 · แหล่งข้อมูล: ปริมาณน้ำฝน</div>
+          <canvas id="c4_1" height="130"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Irrigation Coverage by District · พื้นที่รับน้ำชลประทาน</div>
+          <div class="chart-sub">ไร่ · ปี 2568</div>
+          <canvas id="c4_2" height="130"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Reservoir Capacity vs Volume · อ่างขนาดใหญ่และขนาดกลาง</div>
+          <div class="chart-sub">ล้าน ลบ.ม. · ข้อมูลล่าสุด</div>
+          <canvas id="c4_3" height="130"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Water Infrastructure · โครงสร้างพื้นฐานน้ำรายอำเภอ</div>
+          <div class="chart-sub">สถานีสูบน้ำ + บ่อจิ๋ว</div>
+          <canvas id="c4_4" height="130"></canvas>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Water & Rice Production Relationship · ความสัมพันธ์น้ำ-ผลผลิต</div>
+        <div class="chart-sub">พื้นที่รับน้ำชลประทาน (ไร่) vs ผลผลิตต่อไร่ (กก.)</div>
+        <canvas id="c4_5" height="100"></canvas>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Water Risk Classification · การจัดกลุ่มพื้นที่ตามศักยภาพน้ำ</div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+          <div class="bg-gradient-to-br from-[#D4E4C4] to-white p-4 rounded-xl border border-[#C5D1A8]">
+            <div class="text-xs font-bold text-[#34432F]">💧 Water Advantage</div>
+            <div class="text-2xl font-bold text-[#34432F] mt-1">4</div>
+            <div class="text-xs text-[#6b7280] mt-1">อำเภอ</div>
+            <div class="text-[11px] mt-2">เมืองลำปาง, เกาะคา, แม่ทะ, เถิน</div>
+          </div>
+          <div class="bg-gradient-to-br from-[#E0ECF5] to-white p-4 rounded-xl border border-[#B8D1E5]">
+            <div class="text-xs font-bold text-[#34432F]">🚰 Irrigation Dependent</div>
+            <div class="text-2xl font-bold text-[#34432F] mt-1">5</div>
+            <div class="text-xs text-[#6b7280] mt-1">อำเภอ</div>
+            <div class="text-[11px] mt-2">แจ้ห่ม, ห้างฉัตร, วังเหนือ, เสริมงาม, แม่เมาะ</div>
+          </div>
+          <div class="bg-gradient-to-br from-[#FDE8CD] to-white p-4 rounded-xl border border-[#F5C98A]">
+            <div class="text-xs font-bold text-[#34432F]">🌧️ Rainfall Dependent</div>
+            <div class="text-2xl font-bold text-[#34432F] mt-1">2</div>
+            <div class="text-xs text-[#6b7280] mt-1">อำเภอ</div>
+            <div class="text-[11px] mt-2">งาว, เมืองปาน</div>
+          </div>
+          <div class="bg-gradient-to-br from-[#F5E0E0] to-white p-4 rounded-xl border border-[#E5B8B8]">
+            <div class="text-xs font-bold text-[#34432F]">⚠️ Data Insufficient</div>
+            <div class="text-2xl font-bold text-[#34432F] mt-1">2</div>
+            <div class="text-xs text-[#6b7280] mt-1">อำเภอ</div>
+            <div class="text-[11px] mt-2">แม่พริก, สบปราบ</div>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-[#6b7280] bg-[#F7F7F1] p-3 rounded-lg">
+          <strong>หมายเหตุ:</strong> การจำแนกใช้เกณฑ์สัดส่วนพื้นที่รับน้ำชลประทานต่อพื้นที่เพาะปลูก และจำนวนโครงสร้างพื้นฐานน้ำต่อพื้นที่เกษตร <strong>ห้ามสรุปว่าพื้นที่ใดขาดแคลนน้ำ</strong> จากข้อมูลน้ำฝนเพียงอย่างเดียว เนื่องจากไฟล์ไม่มีข้อมูล Real-time หรือ Forecast
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 5: COLLECTION & MILLING ============ -->
+    <section id="p5" class="page">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div class="kpi-card accent"><div class="kpi-label">สถานประกอบการรวม</div><div class="kpi-value">287</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">โรงสีขนาดเล็ก</div><div class="kpi-value">142</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">โรงสีขนาดกลาง</div><div class="kpi-value">38</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">ท่าข้าว</div><div class="kpi-value">24</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">ขายส่ง</div><div class="kpi-value">52</div><div class="kpi-unit">ราย</div></div>
+        <div class="kpi-card"><div class="kpi-label">นายหน้าค้าข้าว</div><div class="kpi-value">28</div><div class="kpi-unit">ราย</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผู้ส่งออก</div><div class="kpi-value">3</div><div class="kpi-unit">ราย</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Rice Milling Structure · โครงสร้างสถานประกอบการ</div>
+          <div class="chart-sub">ประเภทตามทะเบียน · แหล่งข้อมูล: ricemill</div>
+          <canvas id="c5_1" height="140"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Rice Mill by District · สถานประกอบการรายอำเภอ</div>
+          <div class="chart-sub">แห่ง · ปี 2568</div>
+          <canvas id="c5_2" height="140"></canvas>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Rice Collection Network · แผนภาพเครือข่ายการรวบรวมข้าว</div>
+        <div class="chart-sub">การไหลจากเกษตรกรสู่ตลาดปลายทาง</div>
+        <div class="grid grid-cols-5 gap-2 mt-3 items-center">
+          <div class="text-center">
+            <div class="bg-[#E8EDDC] rounded-xl p-3 text-xs font-bold text-[#34432F]">👨‍🌾<br/>เกษตรกร<br/>52,847 ครัวเรือน</div>
+          </div>
+          <div class="text-center text-[#E99A45] text-xl">→</div>
+          <div class="text-center">
+            <div class="bg-[#FDE8CD] rounded-xl p-3 text-xs font-bold text-[#34432F]">🏭<br/>โรงสี+ท่าข้าว<br/>204 แห่ง</div>
+          </div>
+          <div class="text-center text-[#E99A45] text-xl">→</div>
+          <div class="text-center">
+            <div class="bg-[#D4E4C4] rounded-xl p-3 text-xs font-bold text-[#34432F]">🛒<br/>ค้าส่ง+นายหน้า<br/>80 ราย</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-2 text-center text-xs">
+          <div class="bg-[#F7F7F1] p-2 rounded-lg">🏛️ ศูนย์ข้าวชุมชน 78 แห่ง<br/><span class="text-[#6b7280]">(จุดรวบรวมทางเลือก)</span></div>
+          <div class="bg-[#F7F7F1] p-2 rounded-lg">👥 วิสาหกิจชุมชน<br/><span class="text-[#6b7280]">(แปรรูปขั้นต้น)</span></div>
+          <div class="bg-[#F7F7F1] p-2 rounded-lg">🌏 ผู้ส่งออก 3 ราย<br/><span class="text-[#6b7280]">(ตลาดต่างประเทศ)</span></div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Rice Mill Registry · ทะเบียนสถานประกอบการ (ตัวอย่าง)</div>
+        <div class="scroll-table mt-2">
+          <table class="data">
+            <thead><tr><th>ชื่อสถานประกอบการ</th><th>ประเภท</th><th>ตำบล</th><th>อำเภอ</th></tr></thead>
+            <tbody>
+              <tr><td>โรงสีข้าวสหเกษตรลำปาง</td><td><span class="badge badge-olive">โรงสีกลาง</span></td><td>พระบาท</td><td>เมืองลำปาง</td></tr>
+              <tr><td>โรงสีข้าวสิริพันธุ์</td><td><span class="badge badge-olive">โรงสีกลาง</span></td><td>บ้านแลง</td><td>เมืองลำปาง</td></tr>
+              <tr><td>โรงสีข้าวไทยพัฒนา</td><td><span class="badge badge-orange">โรงสีเล็ก</span></td><td>บ้านเป้า</td><td>เมืองลำปาง</td></tr>
+              <tr><td>ท่าข้าวเกาะคา</td><td><span class="badge badge-orange">ท่าข้าว</span></td><td>เกาะคา</td><td>เกาะคา</td></tr>
+              <tr><td>ห้างหุ้นส่วนจำกัด ลำปางไรซ์</td><td><span class="badge badge-olive">ขายส่ง</span></td><td>เวียงเหนือ</td><td>เมืองลำปาง</td></tr>
+              <tr><td>นายหน้าค้าข้าวแม่ทะ</td><td><span class="badge badge-orange">นายหน้า</span></td><td>แม่ทะ</td><td>แม่ทะ</td></tr>
+              <tr><td>โรงสีแจ้ห่มการข้าว</td><td><span class="badge badge-orange">โรงสีเล็ก</span></td><td>เมืองแจ้ห่ม</td><td>แจ้ห่ม</td></tr>
+              <tr><td>ท่าข้าววังเหนือ</td><td><span class="badge badge-orange">ท่าข้าว</span></td><td>วังเหนือ</td><td>วังเหนือ</td></tr>
+              <tr><td>บริษัท เถินไรซ์เอ็กซ์ปอร์ต</td><td><span class="badge badge-olive">ผู้ส่งออก</span></td><td>เถิน</td><td>เถิน</td></tr>
+              <tr><td>โรงสีเสริมงาม</td><td><span class="badge badge-orange">โรงสีเล็ก</span></td><td>เสริมงาม</td><td>เสริมงาม</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="insight-box">
+          <h4>🏭 อำเภอที่มีโรงสีหนาแน่น</h4>
+          <p>เมืองลำปาง (62 แห่ง), เกาะคา (38 แห่ง), แม่ทะ (32 แห่ง) สอดคล้องกับพื้นที่ผลิตสูง มีโครงสร้างพื้นฐานครบวงจร</p>
+        </div>
+        <div class="insight-box warn">
+          <h4>⚠️ พื้นที่ขาดจุดรวบรวม</h4>
+          <p>แม่พริก (8 แห่ง), สบปราบ (10 แห่ง) มีพื้นที่ผลิตแต่สถานประกอบการน้อย ควรส่งเสริมจุดรวบรวมผลผลิตชุมชน</p>
+        </div>
+      </div>
+      <div class="text-[11px] text-[#9ca3af] bg-[#F7F7F1] p-2 rounded-lg">
+        <strong>ข้อจำกัด:</strong> ไฟล์ไม่มีข้อมูลกำลังการผลิต กำลังสี ปริมาณรับซื้อ สต็อก หรืออัตราการใช้กำลังการผลิต — งดประเมินค่าดังกล่าว
+      </div>
+    </section>
+
+    <!-- ============ PAGE 6: MARKET ============ -->
+    <section id="p6" class="page">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div class="kpi-card"><div class="kpi-label">ราคาต่ำสุด</div><div class="kpi-value">9,800</div><div class="kpi-unit">บาท/ตัน</div></div>
+        <div class="kpi-card accent"><div class="kpi-label">ราคาสูงสุด</div><div class="kpi-value">19,800</div><div class="kpi-unit">บาท/ตัน</div></div>
+        <div class="kpi-card"><div class="kpi-label">ช่วงราคาเฉลี่ย</div><div class="kpi-value">10,000</div><div class="kpi-unit">บาท/ตัน</div></div>
+        <div class="kpi-card"><div class="kpi-label">ต้นทุนนาปี</div><div class="kpi-value">5,420</div><div class="kpi-unit">บาท/ไร่</div></div>
+        <div class="kpi-card"><div class="kpi-label">ต้นทุนนาปรัง</div><div class="kpi-value">6,280</div><div class="kpi-unit">บาท/ไร่</div></div>
+        <div class="kpi-card"><div class="kpi-label">ราคาเมล็ดพันธุ์</div><div class="kpi-value">22-38</div><div class="kpi-unit">บาท/กก.</div></div>
+        <div class="kpi-card"><div class="kpi-label">ส่วนต่างราคา</div><div class="kpi-value">102%</div><div class="kpi-unit">ต่ำสุด→สูงสุด</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Rice Price Trend · แนวโน้มราคาข้าว</div>
+          <div class="chart-sub">บาท/ตัน · ความชื้น 15% · 2564-2568</div>
+          <canvas id="c6_1" height="130"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Price Range by Rice Type · ช่วงราคาตามชนิดข้าว</div>
+          <div class="chart-sub">บาท/ตัน · ปี 2568</div>
+          <canvas id="c6_2" height="130"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Moisture Price Analysis · ผลของความชื้นต่อราคา</div>
+          <div class="chart-sub">บาท/ตัน · ข้าวเจ้า · ปี 2568</div>
+          <canvas id="c6_3" height="130"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Production Cost Analysis · ต้นทุนการผลิต</div>
+          <div class="chart-sub">บาท/ไร่ · แยกตามรายการต้นทุน</div>
+          <canvas id="c6_4" height="130"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Seed Price Comparison · ราคาเมล็ดพันธุ์ข้าว</div>
+          <div class="chart-sub">บาท/กก. · ตามชนิดพันธุ์</div>
+          <canvas id="c6_5" height="130"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Price vs Cost Intelligence · ตารางวิเคราะห์</div>
+          <div class="chart-sub">เปรียบเทียบราคา ต้นทุน และข้อจำกัด</div>
+          <div class="scroll-table mt-2">
+            <table class="data">
+              <thead><tr><th>ชนิดข้าว</th><th>ราคา (บาท/ตัน)</th><th>ต้นทุน (บาท/ไร่)</th><th>หมายเหตุ</th></tr></thead>
+              <tbody>
+                <tr><td>ข้าวเจ้าหอมมะลิ</td><td>15,200-17,800</td><td>5,420 (นาปี)</td><td>ราคาสูง ต้องจัดการความชื้น</td></tr>
+                <tr><td>ข้าวเจ้าขาว 5%</td><td>12,400-14,200</td><td>5,120 (นาปี)</td><td>ตลาดทั่วไป</td></tr>
+                <tr><td>ข้าวเหนียว กข-6</td><td>14,800-19,800</td><td>5,280 (นาปี)</td><td>ความผันผวนสูง</td></tr>
+                <tr><td>ข้าวเหนียว สันป่าตอง</td><td>13,200-16,400</td><td>5,180 (นาปี)</td><td>ตลาดภาคเหนือ</td></tr>
+                <tr><td>ข้าวเจ้าขาว 25%</td><td>9,800-12,200</td><td>4,920 (นาปี)</td><td>ราคาต่ำสุดในกลุ่ม</td></tr>
+                <tr><td>ข้าวเหนียว (นาปรัง)</td><td>12,800-15,600</td><td>6,280 (นาปรัง)</td><td>ต้นทุนสูงกว่านาปี</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-2 text-[11px] text-[#E99A45] bg-[#FDE8CD] p-2 rounded">
+            ⚠️ <strong>ข้อควรระวัง:</strong> ราคาเป็นบาท/ตัน ต้นทุนเป็นบาท/ไร่ — ห้ามคำนวณกำไรสุทธิโดยตรงโดยไม่แปลงหน่วยและตรวจสอบองค์ประกอบต้นทุน
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <h4>💰 Market Strategy · ข้อเสนอเชิงกลยุทธ์</h4>
+        <p>• ข้าว<strong>หอมมะลิ</strong> และ<strong>ข้าวเหนียว กข-6</strong> มีช่วงราคาสูงสุด เหมาะกับพื้นที่ Q1 ที่มีผลิตภาพสูง<br/>
+        • ความชื้นมีผลต่อราคาชัดเจน — ลดความชื้นจาก 25% เหลือ 15% เพิ่มราคาได้ 18-22%<br/>
+        • ต้นทุนนาปรังสูงกว่านาปี 15.9% ควรเน้นนาปีเป็นหลัก ยกเว้นพื้นที่ชลประทานเต็มที่<br/>
+        • ราคาเมล็ดพันธุ์พันธุ์แนะนำ (22-28 บาท/กก.) ถูกกว่าพันธุ์พื้นเมือง (32-38 บาท/กก.)</p>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 7: PROCESSING ============ -->
+    <section id="p7" class="page">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="kpi-card accent"><div class="kpi-label">ผลิตภัณฑ์ OTOP</div><div class="kpi-value">86</div><div class="kpi-unit">รายการ</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผู้ประกอบการแปรรูป</div><div class="kpi-value">142</div><div class="kpi-unit">กลุ่ม/ราย</div></div>
+        <div class="kpi-card"><div class="kpi-label">วิสาหกิจชุมชน</div><div class="kpi-value">284</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">ศูนย์ข้าวชุมชน</div><div class="kpi-value">78</div><div class="kpi-unit">แห่ง</div></div>
+        <div class="kpi-card"><div class="kpi-label">ผลิตภัณฑ์รวม</div><div class="kpi-value">124</div><div class="kpi-unit">รายการ</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Product Portfolio Treemap · กลุ่มผลิตภัณฑ์ OTOP</div>
+          <div class="chart-sub">จำนวนรายการตามประเภท · แหล่งข้อมูล: OTOP</div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div class="bg-gradient-to-br from-[#34432F] to-[#687B4E] text-white p-4 rounded-xl"><div class="text-3xl font-bold">28</div><div class="text-xs mt-1">ข้าวแต๋น</div><div class="text-[10px] opacity-80">32.6%</div></div>
+            <div class="bg-gradient-to-br from-[#687B4E] to-[#A8B58A] text-white p-4 rounded-xl"><div class="text-3xl font-bold">18</div><div class="text-xs mt-1">ข้าวกล้องสามกษัตริย์</div><div class="text-[10px] opacity-80">20.9%</div></div>
+            <div class="bg-gradient-to-br from-[#A8B58A] to-[#C5D1A8] text-[#34432F] p-4 rounded-xl"><div class="text-3xl font-bold">14</div><div class="text-xs mt-1">ข้าวเกรียบ</div><div class="text-[10px]">16.3%</div></div>
+            <div class="bg-gradient-to-br from-[#E99A45] to-[#F5C98A] text-white p-4 rounded-xl"><div class="text-3xl font-bold">12</div><div class="text-xs mt-1">ข้าวหมากโบราณ</div><div class="text-[10px] opacity-80">14.0%</div></div>
+            <div class="bg-gradient-to-br from-[#F5C98A] to-[#FDE8CD] text-[#34432F] p-4 rounded-xl"><div class="text-3xl font-bold">8</div><div class="text-xs mt-1">ข้าวอบสมุนไพร</div><div class="text-[10px]">9.3%</div></div>
+            <div class="bg-[#F7F7F1] border border-[#E5E7D8] p-4 rounded-xl"><div class="text-3xl font-bold text-[#34432F]">6</div><div class="text-xs mt-1 text-[#34432F]">อื่นๆ</div><div class="text-[10px] text-[#6b7280]">7.0%</div></div>
+          </div>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Entrepreneur Distribution · ผู้ประกอบการแปรรูป</div>
+          <div class="chart-sub">รายอำเภอ · แหล่งข้อมูล: ผู้ประกอบการแปรรูปข้าว</div>
+          <canvas id="c7_1" height="160"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Community Enterprise · วิสาหกิจชุมชนรายอำเภอ</div>
+          <div class="chart-sub">แห่ง · แหล่งข้อมูล: วิสาหกิจชุมชน</div>
+          <canvas id="c7_2" height="140"></canvas>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">OTOP Product Catalog · ตัวอย่างผลิตภัณฑ์</div>
+          <div class="scroll-table mt-2">
+            <table class="data">
+              <thead><tr><th>ผลิตภัณฑ์</th><th>กลุ่ม</th><th>อำเภอ</th></tr></thead>
+              <tbody>
+                <tr><td>ข้าวแต๋นน้ำแตงโม</td><td>ข้าวแต๋น</td><td>เมืองลำปาง</td></tr>
+                <tr><td>ข้าวแต๋นธัญพืช</td><td>ข้าวแต๋น</td><td>เกาะคา</td></tr>
+                <tr><td>ข้าวกล้องสามกษัตริย์อินทรีย์</td><td>ข้าวกล้อง</td><td>แม่ทะ</td></tr>
+                <tr><td>ข้าวหมากโบราณสูตรเชียงมั่น</td><td>ข้าวหมาก</td><td>แจ้ห่ม</td></tr>
+                <tr><td>ข้าวเกรียบข้าวไรซ์เบอร์รี่</td><td>ข้าวเกรียบ</td><td>ห้างฉัตร</td></tr>
+                <tr><td>ข้าวอบสมุนไพรดอกคำฝอย</td><td>ข้าวอบ</td><td>เสริมงาม</td></tr>
+                <tr><td>เส้นขนมจีนข้าวสด</td><td>เส้น</td><td>วังเหนือ</td></tr>
+                <tr><td>ข้าวหอมมะลิ GI ลำปาง</td><td>ข้าวสาร</td><td>เถิน</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Product Innovation Strategy · ยุทธศาสตร์นวัตกรรมผลิตภัณฑ์ 4 มิติ</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-2">
+          <div class="bg-[#E8EDDC] p-4 rounded-xl">
+            <div class="text-xs font-bold text-[#34432F] mb-2">🔬 1. Product Development</div>
+            <ul class="text-xs space-y-1 text-[#30352E]">
+              <li>• พัฒนาข้าว functional food</li>
+              <li>• ผลิตภัณฑ์พร้อมรับประทาน (RTE)</li>
+              <li>• แป้งข้าวสำหรับอุตสาหกรรม</li>
+              <li class="text-[#6b7280] italic">[ข้อเสนอเชิงกลยุทธ์]</li>
+            </ul>
+          </div>
+          <div class="bg-[#E0ECF5] p-4 rounded-xl">
+            <div class="text-xs font-bold text-[#34432F] mb-2">✅ 2. Quality & Standard</div>
+            <ul class="text-xs space-y-1 text-[#30352E]">
+              <li>• อย. / มผช. / มาตรฐานฮาลาล</li>
+              <li>• Organic Thailand</li>
+              <li>• GI ลำปาง</li>
+              <li class="text-[#6b7280] italic">[ข้อมูลจริง: มีผลิตภัณฑ์ GI 1 รายการ]</li>
+            </ul>
+          </div>
+          <div class="bg-[#FDE8CD] p-4 rounded-xl">
+            <div class="text-xs font-bold text-[#34432F] mb-2">🏷️ 3. Branding & Packaging</div>
+            <ul class="text-xs space-y-1 text-[#30352E]">
+              <li>• แบรนด์ร่วม "Lampang Rice"</li>
+              <li>• Packaging ทันสมัย</li>
+              <li>• Storytelling ภูมิปัญญา</li>
+              <li class="text-[#6b7280] italic">[ข้อเสนอเชิงกลยุทธ์]</li>
+            </ul>
+          </div>
+          <div class="bg-[#F5E0E0] p-4 rounded-xl">
+            <div class="text-xs font-bold text-[#34432F] mb-2">🛒 4. Market Channel</div>
+            <ul class="text-xs space-y-1 text-[#30352E]">
+              <li>• E-commerce / Social Commerce</li>
+              <li>• Modern Trade</li>
+              <li>• ตลาดส่งออก (จีน, AEC)</li>
+              <li class="text-[#6b7280] italic">[ข้อเสนอเชิงกลยุทธ์]</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 8: STRATEGY ============ -->
+    <section id="p8" class="page">
+      <div class="card p-4">
+        <div class="chart-title">8.1 Rice Value Chain Mapping · แผนที่ห่วงโซ่คุณค่า</div>
+        <div class="chart-sub">สถานะข้อมูลของแต่ละองค์ประกอบ</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <div>
+            <div class="text-xs font-bold text-[#E99A45] tracking-wider mb-2">UPSTREAM</div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ เกษตรกร</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ เมล็ดพันธุ์</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ พื้นที่เพาะปลูก</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ ชลประทาน+แหล่งน้ำ</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ มาตรฐาน GAP</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#FDE8CD] p-2 rounded"><span>⚠️ ปัจจัยการผลิต</span><span class="text-[#B8731E]">บางส่วน</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-[#E99A45] tracking-wider mb-2">MIDSTREAM</div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ โรงสี+ท่าข้าว</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ ผู้ค้าส่ง+นายหน้า</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ ผู้ประกอบการแปรรูป</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ วิสาหกิจชุมชน</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#F5E0E0] p-2 rounded"><span>❌ กำลังการผลิต</span><span class="text-[#B84545]">ไม่มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#F5E0E0] p-2 rounded"><span>❌ ปริมาณรับซื้อ</span><span class="text-[#B84545]">ไม่มีข้อมูล</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-[#E99A45] tracking-wider mb-2">DOWNSTREAM</div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ ผลิตภัณฑ์ OTOP</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#E8EDDC] p-2 rounded"><span>✅ ราคาข้าว</span><span class="text-[#687B4E]">มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#FDE8CD] p-2 rounded"><span>⚠️ การสร้างแบรนด์</span><span class="text-[#B8731E]">บางส่วน</span></div>
+              <div class="flex justify-between bg-[#F5E0E0] p-2 rounded"><span>❌ ยอดขาย/มูลค่าเพิ่ม</span><span class="text-[#B84545]">ไม่มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#F5E0E0] p-2 rounded"><span>❌ ปริมาณส่งออก</span><span class="text-[#B84545]">ไม่มีข้อมูล</span></div>
+              <div class="flex justify-between bg-[#F5E0E0] p-2 rounded"><span>❌ ตลาดปลายทาง</span><span class="text-[#B84545]">ไม่มีข้อมูล</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">8.2 Rice Strategic Matrix · แมทริกซ์ยุทธศาสตร์</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+          <div class="bg-gradient-to-br from-[#D4E4C4] to-white p-4 rounded-xl border border-[#C5D1A8]">
+            <div class="text-xs font-bold text-[#34432F]">⭐ Q1: HIGH PRODUCTION · HIGH POTENTIAL</div>
+            <div class="text-[11px] text-[#6b7280] mt-1">พื้นที่/ชนิดข้าวที่มีข้อมูลสนับสนุนทั้งการผลิตและราคา</div>
+            <div class="mt-2 text-xs"><strong>พื้นที่:</strong> เมืองลำปาง, เกาะคา, แม่ทะ, เถิน</div>
+            <div class="text-xs"><strong>ชนิดข้าว:</strong> ข้าวหอมมะลิ, ข้าวเหนียว กข-6</div>
+            <div class="text-xs"><strong>เกณฑ์:</strong> ผลผลิต > 60,000 ตัน + ราคา > 15,000 บาท/ตัน</div>
+          </div>
+          <div class="bg-gradient-to-br from-[#FDE8CD] to-white p-4 rounded-xl border border-[#F5C98A]">
+            <div class="text-xs font-bold text-[#34432F]">⚠️ Q2: HIGH PRODUCTION · LOW PRODUCTIVITY</div>
+            <div class="text-[11px] text-[#6b7280] mt-1">ผลผลิตรวมสูง แต่ผลผลิตต่อไร่ต่ำ</div>
+            <div class="mt-2 text-xs"><strong>พื้นที่:</strong> งาว (58,420 ไร่, 385 กก./ไร่)</div>
+            <div class="text-xs"><strong>เกณฑ์:</strong> ผลผลิต > 40,000 ตัน แต่ผลผลิต/ไร่ < 400</div>
+            <div class="text-xs"><strong>แนวทาง:</strong> พัฒนาเมล็ดพันธุ์ + เทคโนโลยี</div>
+          </div>
+          <div class="bg-gradient-to-br from-[#E0ECF5] to-white p-4 rounded-xl border border-[#B8D1E5]">
+            <div class="text-xs font-bold text-[#34432F]">💎 Q3: LOW PRODUCTION · HIGH PRODUCTIVITY</div>
+            <div class="text-[11px] text-[#6b7280] mt-1">ผลิตภาพสูงแต่ขนาดการผลิตต่ำ</div>
+            <div class="mt-2 text-xs"><strong>พื้นที่:</strong> แจ้ห่ม, ห้างฉัตร, เมืองปาน</div>
+            <div class="text-xs"><strong>เกณฑ์:</strong> ผลผลิต/ไร่ > 420 แต่พื้นที่/ครัวเรือน < 13 ไร่</div>
+            <div class="text-xs"><strong>แนวทาง:</strong> ขยายขนาด + เกษตรสัญญา</div>
+          </div>
+          <div class="bg-gradient-to-br from-[#F5E0E0] to-white p-4 rounded-xl border border-[#E5B8B8]">
+            <div class="text-xs font-bold text-[#34432F]">🔧 Q4: LOW PRODUCTION · LOW PRODUCTIVITY</div>
+            <div class="text-[11px] text-[#6b7280] mt-1">พื้นที่ที่ต้องพัฒนาเร่งด่วน</div>
+            <div class="mt-2 text-xs"><strong>พื้นที่:</strong> แม่พริก, สบปราบ</div>
+            <div class="text-xs"><strong>เกณฑ์:</strong> ผลผลิต/ไร่ < 380 + พื้นที่/ครัวเรือน < 12 ไร่</div>
+            <div class="text-xs"><strong>แนวทาง:</strong> พัฒนาทั้งระบบ + โครงสร้างพื้นฐานน้ำ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">8.3 Rice Opportunity Analysis · วิเคราะห์โอกาส 5 ด้าน</div>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-2 mt-2">
+          <div class="bg-[#E8EDDC] p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#34432F]">🌾 Production</div>
+            <div class="text-[11px] mt-1">ขยายพื้นที่ GAP จาก 5.85% เป็น 15% ภายใน 5 ปี</div>
+          </div>
+          <div class="bg-[#E0ECF5] p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#34432F]">📈 Productivity</div>
+            <div class="text-[11px] mt-1">เพิ่มผลผลิตเฉลี่ยจาก 429 เป็น 480 กก./ไร่</div>
+          </div>
+          <div class="bg-[#FDE8CD] p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#34432F]">💧 Water</div>
+            <div class="text-[11px] mt-1">เพิ่มพื้นที่รับน้ำชลประทานจาก 32.4% เป็น 45%</div>
+          </div>
+          <div class="bg-[#D4E4C4] p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#34432F]">💰 Market</div>
+            <div class="text-[11px] mt-1">เชื่อมโยงตลาดพรีเมียม + GI + ส่งออก</div>
+          </div>
+          <div class="bg-[#F5E0E0] p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#34432F]">🎁 Value</div>
+            <div class="text-[11px] mt-1">แปรรูปเพิ่มมูลค่า 2-3 เท่าจากข้าวสาร</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">8.4 SWOT Analysis</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+          <div class="swot-card swot-s">
+            <div class="text-xs font-bold text-[#34432F] mb-2">💪 STRENGTHS</div>
+            <ul class="text-xs space-y-1">
+              <li>• พื้นที่เพาะปลูก 823,450 ไร่ ฐานการผลิตใหญ่</li>
+              <li>• เกษตรกร 52,847 ครัวเรือน กำลังผลิตมั่นคง</li>
+              <li>• โรงสี+สถานประกอบการ 287 แห่ง โครงสร้างครบ</li>
+              <li>• ศูนย์ข้าวชุมชน 78 แห่ง ครอบคลุมทั้งจังหวัด</li>
+              <li>• ผลิตภัณฑ์ OTOP 86 รายการ ความหลากหลายสูง</li>
+            </ul>
+          </div>
+          <div class="swot-card swot-w">
+            <div class="text-xs font-bold text-[#34432F] mb-2">⚠️ WEAKNESSES</div>
+            <ul class="text-xs space-y-1">
+              <li>• ผลผลิตต่อไร่เฉลี่ย 429 กก./ไร่ ต่ำกว่าศักยภาพ</li>
+              <li>• พื้นที่ GAP เพียง 5.85% ของพื้นที่ทั้งหมด</li>
+              <li>• ต้นทุนนาปี 5,420 บาท/ไร่ ค่อนข้างสูง</li>
+              <li>• แม่พริก+สบปราบ ผลิตภาพต่ำมาก (365-378 กก./ไร่)</li>
+              <li>• ข้อมูลกำลังการผลิต+ยอดขาย ไม่มีในระบบ</li>
+            </ul>
+          </div>
+          <div class="swot-card swot-o">
+            <div class="text-xs font-bold text-[#34432F] mb-2">🚀 OPPORTUNITIES</div>
+            <ul class="text-xs space-y-1">
+              <li>• ข้าวหอมมะลิ+ข้าวเหนียว กข-6 ราคาสูง 15,000-19,800 บาท/ตัน</li>
+              <li>• ผู้ประกอบการแปรรูป 142 ราย พร้อมยกระดับ</li>
+              <li>• วิสาหกิจชุมชน 284 แห่ง ฐานการผลิตชุมชน</li>
+              <li>• ตลาด GI + Organic + Premium กำลังขยายตัว</li>
+              <li>• การเชื่อมโยงตลาด E-commerce + Modern Trade</li>
+            </ul>
+          </div>
+          <div class="swot-card swot-t">
+            <div class="text-xs font-bold text-[#34432F] mb-2">⚡ THREATS</div>
+            <ul class="text-xs space-y-1">
+              <li>• พื้นที่รับน้ำชลประทานเพียง 32.4% พึ่งพาน้ำฝนสูง</li>
+              <li>• ความผันผวนของราคาข้าว (ช่วง 102%)</li>
+              <li>• ต้นทุนการผลิตเพิ่มขึ้นต่อเนื่อง</li>
+              <li>• <em class="text-[#6b7280]">ภัยพิบัติ/โรคระบาด: ไม่สามารถประเมินได้จากข้อมูลปัจจุบัน</em></li>
+              <li>• <em class="text-[#6b7280]">การแข่งขันจากประเทศเพื่อนบ้าน: ต้องใช้ข้อมูลภายนอก</em></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">8.5 Strategic Action Plan · แผนยุทธศาสตร์</div>
+        <div class="scroll-table mt-2">
+          <table class="data">
+            <thead><tr><th>ประเด็นยุทธศาสตร์</th><th>พื้นที่เป้าหมาย</th><th>แนวทางพัฒนา</th><th>ตัวชี้วัด</th><th>ข้อมูลที่ต้องเพิ่ม</th></tr></thead>
+            <tbody>
+              <tr><td>เพิ่มผลิตภาพ</td><td>แม่พริก, สบปราบ, งาว</td><td>เมล็ดพันธุ์คุณภาพ+เทคโนโลยี</td><td>กก./ไร่</td><td>ข้อมูลปัจจัยการผลิต</td></tr>
+              <tr><td>พัฒนาคุณภาพ</td><td>เมืองลำปาง, เกาะคา, เถิน</td><td>ขยายมาตรฐาน GAP</td><td>ไร่ GAP</td><td>ผลตรวจรับรอง</td></tr>
+              <tr><td>จัดการน้ำ</td><td>งาว, เมืองปาน, แม่พริก</td><td>บ่อจิ๋ว+อ่างขนาดเล็ก</td><td>พื้นที่รับน้ำ</td><td>ข้อมูลจัดสรรน้ำ</td></tr>
+              <tr><td>พัฒนาตลาด</td><td>ทั้งจังหวัด</td><td>เชื่อมโยงผู้ซื้อ+GI</td><td>ราคาข้าว</td><td>ปริมาณรับซื้อ</td></tr>
+              <tr><td>เพิ่มมูลค่า</td><td>142 ผู้ประกอบการ</td><td>พัฒนาผลิตภัณฑ์พรีเมียม</td><td>ผู้ประกอบการ</td><td>ยอดขาย+มูลค่าเพิ่ม</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card p-4 bg-gradient-to-br from-[#34432F] to-[#687B4E] text-white">
+        <div class="chart-title text-white">8.6 Decision Support · ข้อเสนอสำหรับผู้บริหาร</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+          <div class="bg-white/10 backdrop-blur p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#E99A45]">🌾 What to Produce</div>
+            <div class="text-xs mt-1">ข้าวหอมมะลิ + ข้าวเหนียว กข-6 (ราคาสูง 15,000-19,800 บาท/ตัน)</div>
+            <div class="text-[10px] opacity-80 mt-1">หลักฐาน: Sheet price</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#E99A45]">📍 Where to Produce</div>
+            <div class="text-xs mt-1">เมืองลำปาง, เกาะคา, แม่ทะ, เถิน (Q1 + พื้นที่ชลประทานสูง)</div>
+            <div class="text-[10px] opacity-80 mt-1">หลักฐาน: area +ชลประทาน</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#E99A45]">📊 How Much</div>
+            <div class="text-xs mt-1">รักษาระดับ 340,000-350,000 ตัน/ปี เน้นคุณภาพกว่าปริมาณ</div>
+            <div class="text-[10px] opacity-80 mt-1">หลักฐาน: area trend</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#E99A45]">📅 When to Produce</div>
+            <div class="text-xs mt-1">นาปี (พ.ค.-ธ.ค.) เป็นหลัก นาปรังเฉพาะพื้นที่ชลประทาน</div>
+            <div class="text-[10px] opacity-80 mt-1">หลักฐาน: area +ต้นทุน</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#E99A45]">🛒 Where to Sell</div>
+            <div class="text-xs mt-1">ตลาดพรีเมียม + GI + Modern Trade + ส่งออก (3 รายจดทะเบียน)</div>
+            <div class="text-[10px] opacity-80 mt-1">หลักฐาน: ricemill + OTOP</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur p-3 rounded-lg">
+            <div class="text-xs font-bold text-[#E99A45]">🎁 How to Add Value</div>
+            <div class="text-xs mt-1">แปรรูปเป็น OTOP พรีเมียม แบรนด์ร่วม "Lampang Rice"</div>
+            <div class="text-[10px] opacity-80 mt-1">หลักฐาน: OTOP +ผู้ประกอบการ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 9: DATA GOVERNANCE ============ -->
+    <section id="p9" class="page">
+      <div class="card p-4">
+        <div class="chart-title">Agency Directory · หน่วยงานแหล่งข้อมูล</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2">
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">🏛️ สำนักงานเกษตรจังหวัดลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">area, เนื้อที่ทำการเกษตร, พื้นที่ข้าว GAP, ต้นทุน, ศูนย์ข้าวชุมชน</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">🌱 ศูนย์เมล็ดพันธุ์ข้าวลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">ราคาเมล็ดพันธุ์ข้าว</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">💧 โครงการชลประทานลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">พื้นที่รับน้ำชลประทาน, อ่างเก็บน้ำ, สถานีสูบน้ำ</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">🌍 สถานีพัฒนาที่ดินลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">ข้อมูลดิน (อยู่ระหว่างตรวจสอบ)</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">👥 สำนักงานพัฒนาชุมชน จ.ลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">OTOP, วิสาหกิจชุมชน</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">💼 สำนักงานพาณิชย์ จ.ลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">ราคาข้าว, ricemill</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">📊 สำนักงานสถิติ จ.ลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">ข้อมูลประชากรเกษตร</div>
+          </div>
+          <div class="bg-[#F7F7F1] p-3 rounded-lg border border-[#E5E7D8]">
+            <div class="font-bold text-sm text-[#34432F]">🌦️ สถานีอุตุนิยมวิทยาลำปาง</div>
+            <div class="text-xs text-[#6b7280] mt-1">ปริมาณน้ำฝน</div>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-[#6b7280] bg-[#F7F7F1] p-2 rounded">
+          <strong>หมายเหตุ:</strong> การจับคู่หน่วยงานกับหมวดข้อมูลเป็นการจัดหมวดเพื่อการประสานงาน ไม่ใช่การยืนยันแหล่งกำเนิดข้อมูลราย Sheet หากไฟล์ไม่ได้ระบุแหล่งข้อมูล ให้แสดงว่า "อยู่ระหว่างตรวจสอบแหล่งข้อมูลต้นทาง"
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="chart-title">Data Inventory · รายการข้อมูล 19 Sheets</div>
+        <div class="scroll-table mt-2">
+          <table class="data">
+            <thead><tr><th>#</th><th>ชื่อ Sheet</th><th>รายการ</th><th>ฟิลด์</th><th>ปีข้อมูล</th><th>หน่วย</th><th>Missing</th><th>Duplicate</th><th>คุณภาพ</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>เนื้อที่ทำการเกษตร</td><td>13</td><td>5</td><td>2564-2568</td><td>ไร่</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>2</td><td>area</td><td>1,847</td><td>12</td><td>2568</td><td>ไร่/ตัน/กก.</td><td>24</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>3</td><td>พื้นที่ข้าว GAP</td><td>13</td><td>4</td><td>2568</td><td>ไร่</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>4</td><td>ราคาเมล็ดพันธุ์ข้าว</td><td>48</td><td>5</td><td>2564-2568</td><td>บาท/กก.</td><td>2</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>5</td><td>ต้นทุนข้าวนาปี</td><td>13</td><td>8</td><td>2568</td><td>บาท/ไร่</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>6</td><td>ต้นทุนข้าวนาปรัง</td><td>13</td><td>8</td><td>2568</td><td>บาท/ไร่</td><td>1</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>7</td><td>price</td><td>186</td><td>6</td><td>2564-2568</td><td>บาท/ตัน</td><td>12</td><td>0</td><td><span class="badge badge-orange">ปานกลาง</span></td></tr>
+              <tr><td>8</td><td>ricemill</td><td>287</td><td>7</td><td>ปัจจุบัน</td><td>-</td><td>5</td><td>2</td><td><span class="badge badge-orange">ปานกลาง</span></td></tr>
+              <tr><td>9</td><td>OTOP</td><td>86</td><td>6</td><td>2568</td><td>-</td><td>3</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>10</td><td>ผู้ประกอบการแปรรูปข้าว</td><td>142</td><td>5</td><td>2566-2568</td><td>กลุ่ม/ราย</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>11</td><td>วิสาหกิจชุมชน</td><td>284</td><td>4</td><td>2568</td><td>แห่ง</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>12</td><td>พื้นที่ปลูกข้าวรับน้ำชลประทาน</td><td>13</td><td>4</td><td>2568</td><td>ไร่</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>13</td><td>บ่อจิ๋วในไร่นา</td><td>13</td><td>3</td><td>2568</td><td>แห่ง</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>14</td><td>ปริมาณน้ำฝน</td><td>12</td><td>3</td><td>2564-2568</td><td>มม.</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>15</td><td>ปริมาณน้ำอ่างใหญ่กลาง</td><td>8</td><td>5</td><td>2568</td><td>ล้าน ลบ.ม.</td><td>1</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>16</td><td>สถานีสูบน้ำ</td><td>186</td><td>6</td><td>ปัจจุบัน</td><td>-</td><td>8</td><td>0</td><td><span class="badge badge-orange">ปานกลาง</span></td></tr>
+              <tr><td>17</td><td>ปริมาณน้ำในอ่างขนาดเล็ก</td><td>32</td><td>5</td><td>2568</td><td>ล้าน ลบ.ม.</td><td>4</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>18</td><td>ปริมาณน้ำอ่างขนาดเล็กรายอำเภอ</td><td>13</td><td>4</td><td>2568</td><td>ล้าน ลบ.ม.</td><td>0</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+              <tr><td>19</td><td>ศูนย์ข้าวชุมชน</td><td>78</td><td>6</td><td>2568</td><td>-</td><td>2</td><td>0</td><td><span class="badge badge-olive">ดี</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="chart-title">Data Quality Monitoring · การตรวจสอบคุณภาพ 5 ด้าน</div>
+          <div class="space-y-3 mt-2">
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="font-semibold">Completeness · ความครบถ้วน</span><span class="text-[#687B4E] font-bold">94%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:94%"></div></div>
+              <div class="text-[10px] text-[#6b7280] mt-1">สูตร: (Total Cells - Missing) / Total Cells × 100</div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="font-semibold">Consistency · ความสอดคล้อง</span><span class="text-[#687B4E] font-bold">97%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:97%"></div></div>
+              <div class="text-[10px] text-[#6b7280] mt-1">สูตร: ตรวจสอบความสอดคล้องของหน่วยและปีข้อมูล</div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="font-semibold">Uniqueness · ความไม่ซ้ำ</span><span class="text-[#687B4E] font-bold">99%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:99%"></div></div>
+              <div class="text-[10px] text-[#6b7280] mt-1">สูตร: (Total Records - Duplicates) / Total Records × 100</div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="font-semibold">Timeliness · ความทันสมัย</span><span class="text-[#E99A45] font-bold">85%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--orange)"></div></div>
+              <div class="text-[10px] text-[#6b7280] mt-1">ข้อมูลส่วนใหญ่ปี 2568 บาง Sheet เป็นทะเบียนปัจจุบัน</div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="font-semibold">Accuracy · ความถูกต้อง</span><span class="text-[#9ca3af] font-bold">N/A</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+              <div class="text-[10px] text-[#E99A45] mt-1">⚠️ ไม่สามารถวัดได้ เนื่องจากไม่มีข้อมูลอ้างอิงภายนอกสำหรับตรวจสอบ</div>
+            </div>
+          </div>
+        </div>
+        <div class="card p-4">
+          <div class="chart-title">Data Dictionary · พจนานุกรมข้อมูล (ตัวอย่าง)</div>
+          <div class="scroll-table mt-2">
+            <table class="data">
+              <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th><th>หน่วย</th><th>Sheet</th></tr></thead>
+              <tbody>
+                <tr><td>district_name</td><td>ชื่ออำเภอ</td><td>-</td><td>area</td></tr>
+                <tr><td>subdistrict_name</td><td>ชื่อตำบล</td><td>-</td><td>area</td></tr>
+                <tr><td>planting_area</td><td>เนื้อที่เพาะปลูก</td><td>ไร่</td><td>area</td></tr>
+                <tr><td>harvest_area</td><td>เนื้อที่เก็บเกี่ยว</td><td>ไร่</td><td>area</td></tr>
+                <tr><td>production</td><td>ปริมาณผลผลิต</td><td>ตัน</td><td>area</td></tr>
+                <tr><td>yield_per_rai</td><td>ผลผลิตต่อไร่</td><td>กก./ไร่</td><td>area</td></tr>
+                <tr><td>rice_type</td><td>ประเภทข้าว (นาปี/นาปรัง)</td><td>-</td><td>area</td></tr>
+                <tr><td>rice_kind</td><td>ชนิดข้าว (เจ้า/เหนียว)</td><td>-</td><td>area</td></tr>
+                <tr><td>price</td><td>ราคาข้าว</td><td>บาท/ตัน</td><td>price</td></tr>
+                <tr><td>moisture</td><td>ระดับความชื้น</td><td>%</td><td>price</td></tr>
+                <tr><td>cost_per_rai</td><td>ต้นทุนการผลิต</td><td>บาท/ไร่</td><td>ต้นทุนข้าวนาปี/นาปรัง</td></tr>
+                <tr><td>gap_area</td><td>พื้นที่ GAP</td><td>ไร่</td><td>พื้นที่ข้าว GAP</td></tr>
+                <tr><td>irrigation_area</td><td>พื้นที่รับน้ำชลประทาน</td><td>ไร่</td><td>พื้นที่ปลูกข้าวรับน้ำชลประทาน</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 bg-gradient-to-br from-[#34432F] to-[#687B4E] text-white">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <div class="text-xs text-[#A8B58A] tracking-wider">SYSTEM NAME</div>
+            <div class="text-lg font-bold mt-1">LAMPANG RICE VALUE CHAIN INTELLIGENCE</div>
+            <div class="text-xs mt-1 text-[#A8B58A]">ระบบสารสนเทศอัจฉริยะห่วงโซ่คุณค่าข้าวจังหวัดลำปาง</div>
+          </div>
+          <div>
+            <div class="text-xs text-[#A8B58A] tracking-wider">DATA UPDATE</div>
+            <div class="text-lg font-bold mt-1">20 November 2026</div>
+            <div class="text-xs mt-1 text-[#A8B58A]">ข้อมูลกำกับระบบ ไม่ใช่การรับรองว่าทุก Sheet ปรับปรุงถึงวันดังกล่าว</div>
+          </div>
+          <div>
+            <div class="text-xs text-[#A8B58A] tracking-wider">PREPARED BY</div>
+            <div class="text-lg font-bold mt-1">กลุ่มสารสนเทศการเกษตร</div>
+            <div class="text-xs mt-1 text-[#A8B58A]">สำนักงานเกษตรและสหกรณ์จังหวัดลำปาง</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-xs text-[#9ca3af] py-4 border-t border-[#EEF0E6] mt-6">
+      <div>© 2026 LAMPANG RICE VALUE CHAIN INTELLIGENCE · กลุ่มสารสนเทศการเกษตร · สำนักงานเกษตรและสหกรณ์จังหวัดลำปาง</div>
+      <div class="mt-1">Data Sources: 19 Sheets · GitHub: korsorlampangweb/LampangRice-Dashboard · Data Last Updated: 20 November 2026</div>
+    </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// ============ NAVIGATION ============
+const pages = {
+  p1:'ภาพรวมสถานการณ์ห่วงโซ่คุณค่าข้าวจังหวัดลำปาง',
+  p2:'วิเคราะห์โครงสร้างและศักยภาพการผลิตข้าว',
+  p3:'วิเคราะห์ผลิตภาพและภูมิศาสตร์การผลิตข้าว',
+  p4:'วิเคราะห์น้ำและภูมิอากาศเพื่อวางแผนการผลิต',
+  p5:'วิเคราะห์ระบบรวบรวมผลผลิตและโครงสร้างโรงสีข้าว',
+  p6:'วิเคราะห์ตลาด ราคา และต้นทุนข้าว',
+  p7:'วิเคราะห์อุตสาหกรรมแปรรูปและนวัตกรรมผลิตภัณฑ์ข้าว',
+  p8:'วิเคราะห์ห่วงโซ่คุณค่าและยุทธศาสตร์การพัฒนาข้าว',
+  p9:'แหล่งข้อมูล หน่วยงาน และการตรวจสอบคุณภาพข้อมูล'
+};
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    const id=el.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('pageTitle').textContent=pages[id];
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+document.getElementById('menuBtn').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+// ============ FILTERS ============
+const districts=['เมืองลำปาง','แม่เมาะ','เกาะคา','เสริมงาม','งาว','แจ้ห่ม','วังเหนือ','เถิน','แม่พริก','แม่ทะ','ห้างฉัตร','เมืองปาน','สบปราบ'];
+const fDist=document.getElementById('fDistrict');
+districts.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;fDist.appendChild(o);});
+function resetFilters(){
+  document.getElementById('fYear').value='2568';
+  document.getElementById('fDistrict').value='';
+  document.getElementById('fSubdistrict').value='ทุกตำบล';
+  document.getElementById('fRiceType').value='ทุกประเภทข้าว';
+  document.getElementById('fRiceKind').value='ทุกชนิด';
+}
+
+// ============ CHART DEFAULTS ============
+Chart.defaults.font.family="'Noto Sans Thai',sans-serif";
+Chart.defaults.font.size=11;
+Chart.defaults.color='#30352E';
+const OLIVE='#34432F', OLIVE2='#687B4E', OLIVE3='#A8B58A', ORANGE='#E99A45', IVORY='#F7F7F1';
+
+// ============ PAGE 1 CHARTS ============
+const dLabels=districts;
+const dProd=[82450,42150,68210,48210,58420,52840,72840,54820,28420,78210,62450,15000,24850];
+const dArea=[92450,48210,85420,54820,68210,62450,82840,62420,32420,88210,72450,18000,28850];
+
+new Chart(document.getElementById('c1_1'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[
+    {label:'ผลผลิต (ตัน)',data:dProd,backgroundColor:OLIVE,yAxisID:'y'},
+    {label:'พื้นที่ (ไร่)',data:dArea,type:'line',borderColor:ORANGE,backgroundColor:'rgba(233,154,69,.1)',yAxisID:'y1',tension:.3}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{position:'left',title:{display:true,text:'ตัน'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'ไร่'}}}}
+});
+
+new Chart(document.getElementById('c1_2'),{
+  type:'doughnut',
+  data:{labels:['นาปี','นาปรัง'],datasets:[{data:[684520,138930],backgroundColor:[OLIVE,ORANGE],borderWidth:0}]},
+  options:{responsive:true,plugins:{legend:{display:false}},cutout:'65%'}
+});
+
+new Chart(document.getElementById('c1_3'),{
+  type:'line',
+  data:{labels:['2564','2565','2566','2567','2568'],datasets:[
+    {label:'พื้นที่ (พันไร่)',data:[782,798,812,818,823.45],borderColor:OLIVE,backgroundColor:'rgba(52,67,47,.1)',fill:true,tension:.3},
+    {label:'ผลผลิต (แสนตัน)',data:[31.2,32.4,33.1,33.8,34.29],borderColor:ORANGE,backgroundColor:'rgba(233,154,69,.1)',fill:true,tension:.3}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+});
+
+new Chart(document.getElementById('c1_4'),{
+  type:'bar',
+  data:{labels:['2564','2565','2566','2567','2568'],datasets:[
+    {label:'ผลผลิต (แสนตัน)',data:[31.2,32.4,33.1,33.8,34.29],backgroundColor:OLIVE},
+    {label:'ราคาข้าวเจ้า (พันบาท/ตัน)',data:[12.4,13.2,14.8,15.2,14.2],backgroundColor:ORANGE}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+});
+
+// ============ PAGE 2 CHARTS ============
+new Chart(document.getElementById('c2_1'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[
+    {label:'นาปี',data:[68210,35120,56840,40120,48210,43850,60420,45210,23840,65120,51840,12420,20840],backgroundColor:OLIVE},
+    {label:'นาปรัง',data:[14240,7030,11370,8090,10210,8990,12420,9610,4580,13090,10610,2580,4010],backgroundColor:ORANGE}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'ตัน'}}}}
+});
+
+new Chart(document.getElementById('c2_2'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[
+    {label:'ข้าวเจ้า',data:[48210,24850,39840,28120,34210,30840,42850,32140,16840,45820,36420,8840,14520],backgroundColor:OLIVE},
+    {label:'ข้าวเหนียว',data:[34240,17300,28370,20090,24210,22000,29990,22680,11580,32390,26030,6160,10330],backgroundColor:ORANGE}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'ตัน'}}}}
+});
+
+new Chart(document.getElementById('c2_3'),{
+  type:'line',
+  data:{labels:['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
+  datasets:[{label:'ผลผลิต (ตัน)',data:[18420,22150,14820,8210,12450,5120,4820,6210,15840,68420,125210,41180],
+  borderColor:OLIVE,backgroundColor:'rgba(52,67,47,.15)',fill:true,tension:.35}]},
+  options:{responsive:true,plugins:{legend:{display:false}}}
+});
+
+new Chart(document.getElementById('c2_4'),{
+  type:'doughnut',
+  data:{labels:['ภายในจังหวัด','ภายนอกจังหวัด','ส่งออก'],datasets:[{data:[218450,120400,4000],backgroundColor:[OLIVE,OLIVE3,ORANGE],borderWidth:0}]},
+  options:{plugins:{legend:{position:'bottom'}},cutout:'60%'}
+});
+
+new Chart(document.getElementById('c2_5'),{
+  type:'bar',
+  data:{labels:['2565','2566','2567','2568'],datasets:[{label:'% การขยายตัว',data:[3.85,2.16,2.11,1.45],backgroundColor:[OLIVE3,OLIVE2,OLIVE,ORANGE]}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'%'}}}}
+});
+
+// Subdistrict table
+const subd=[
+  ['เมืองลำปาง','พระบาท',12450,5840,469],
+  ['เมืองลำปาง','บ้านแลง',10820,5120,473],
+  ['เกาะคา','เกาะคา',11240,5210,463],
+  ['แม่ทะ','บ้านเป้า',10820,4920,455],
+  ['วังเหนือ','วังเหนือ',9840,4520,459],
+  ['แจ้ห่ม','เมืองแจ้ห่ม',8820,4120,467],
+  ['เถิน','เถิน',8420,3840,456],
+  ['ห้างฉัตร','ห้างฉัตร',8210,3720,453],
+  ['เสริมงาม','เสริมงาม',7210,3240,449],
+  ['แม่เมาะ','แม่เมาะ',6840,3020,441],
+  ['งาว','งาว',7820,3420,437],
+  ['สบปราบ','สบปราบ',4820,2040,423],
+  ['เมืองปาน','เมืองปาน',3840,1640,427],
+  ['แม่พริก','แม่พริก',3420,1320,386],
+  ['เมืองลำปาง','พิชัย',6420,2920,455]
+];
+const tb=document.getElementById('tb2_1');
+subd.forEach((r,i)=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${i+1}</td><td>${r[0]}</td><td>${r[1]}</td><td>${r[2].toLocaleString()}</td><td>${r[3].toLocaleString()}</td><td>${r[4]}</td>`;
+  tb.appendChild(tr);
+});
+
+// ============ PAGE 3 ============
+new Chart(document.getElementById('c3_1'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[
+    {label:'เพาะปลูก/ครัวเรือน (ไร่)',data:[14.2,14.8,16.8,13.4,15.2,12.6,15.2,16.4,10.2,18.4,11.8,9.8,11.4],backgroundColor:OLIVE},
+    {label:'ผลผลิต/ไร่ (กก.)',data:[468,392,452,398,412,438,412,402,365,445,425,388,378],backgroundColor:ORANGE}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+});
+
+// Quadrant dots
+const qData=[
+  {n:'เมืองลำปาง',x:14.2,y:468},{n:'เกาะคา',x:16.8,y:452},{n:'แม่ทะ',x:18.4,y:445},
+  {n:'แจ้ห่ม',x:12.6,y:438},{n:'ห้างฉัตร',x:11.8,y:425},{n:'วังเหนือ',x:15.2,y:412},
+  {n:'เสริมงาม',x:13.4,y:398},{n:'งาว',x:17.2,y:385},{n:'เถิน',x:16.4,y:402},
+  {n:'แม่เมาะ',x:14.8,y:392},{n:'แม่พริก',x:10.2,y:365},{n:'สบปราบ',x:11.4,y:378},
+  {n:'เมืองปาน',x:9.8,y:388}
+];
+const medX=14.2, medY=412;
+const xMin=8, xMax=20, yMin=350, yMax=480;
+const qEl=document.getElementById('quadrant');
+qData.forEach(d=>{
+  const dot=document.createElement('div');
+  dot.className='dot';
+  const px=((d.x-xMin)/(xMax-xMin))*100;
+  const py=100-((d.y-yMin)/(yMax-yMin))*100;
+  dot.style.left=px+'%';
+  dot.style.top=py+'%';
+  dot.innerHTML=`<span>${d.n}</span>`;
+  qEl.appendChild(dot);
+});
+
+// ============ PAGE 4 ============
+new Chart(document.getElementById('c4_1'),{
+  type:'bar',
+  data:{labels:['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
+  datasets:[{label:'น้ำฝน (มม.)',data:[8,12,28,62,142,158,162,188,198,142,48,12],
+  backgroundColor:OLIVE3,borderColor:OLIVE,borderWidth:1}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'มม.'}}}}
+});
+
+new Chart(document.getElementById('c4_2'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[{label:'พื้นที่รับน้ำชลประทาน (ไร่)',
+  data:[48210,12420,32840,14820,18210,20420,22840,18420,6840,28420,24210,4820,8210],
+  backgroundColor:OLIVE}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'ไร่'}}}}
+});
+
+new Chart(document.getElementById('c4_3'),{
+  type:'bar',
+  data:{labels:['เขื่อนกิ่วลม','เขื่อนกิ่วคอหมา','อ่งแม่จาง','อ่งแม่ตา','อ่งแม่ตุ๋ย','อ่งแม่หม้อ','อ่งแม่จางน้อย','อ่งแม่ยาว'],
+  datasets:[
+    {label:'ความจุ (ล้าน ลบ.ม.)',data:[142,86,42,28,24,18,12,8],backgroundColor:OLIVE},
+    {label:'น้ำปัจจุบัน (ล้าน ลบ.ม.)',data:[118,72,34,22,18,14,9,6],backgroundColor:ORANGE}
+  ]},
+  options:{plugins:{legend:{position:'bottom'}},scales:{y:{title:{display:true,text:'ล้าน ลบ.ม.'}}}}
+});
+
+new Chart(document.getElementById('c4_4'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[
+    {label:'สถานีสูบน้ำ',data:[28,12,22,14,18,16,20,18,8,24,16,6,10],backgroundColor:OLIVE},
+    {label:'บ่อจิ๋ว',data:[482,242,384,284,342,312,368,324,184,428,298,142,218],backgroundColor:ORANGE}
+  ]},
+  options:{plugins:{legend:{position:'bottom'}}}
+});
+
+new Chart(document.getElementById('c4_5'),{
+  type:'scatter',
+  data:{datasets:[{label:'อำเภอ',data:[
+    {x:48210,y:468},{x:12420,y:392},{x:32840,y:452},{x:14820,y:398},{x:18210,y:412},
+    {x:20420,y:438},{x:22840,y:412},{x:18420,y:402},{x:6840,y:365},{x:28420,y:445},
+    {x:24210,y:425},{x:4820,y:388},{x:8210,y:378}
+  ],backgroundColor:ORANGE,borderColor:OLIVE,pointRadius:8}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${dLabels[c.dataIndex]}: น้ำ ${c.parsed.x.toLocaleString()} ไร่, ผลผลิต ${c.parsed.y} กก./ไร่`}}},
+  scales:{x:{title:{display:true,text:'พื้นที่รับน้ำชลประทาน (ไร่)'}},y:{title:{display:true,text:'ผลผลิตต่อไร่ (กก.)'}}}}
+});
+
+// ============ PAGE 5 ============
+new Chart(document.getElementById('c5_1'),{
+  type:'doughnut',
+  data:{labels:['โรงสีเล็ก','โรงสีกลาง','ท่าข้าว','ขายส่ง','นายหน้า','ผู้ส่งออก'],
+  datasets:[{data:[142,38,24,52,28,3],backgroundColor:[OLIVE,OLIVE2,OLIVE3,ORANGE,'#F5C98A','#B8731E'],borderWidth:0}]},
+  options:{plugins:{legend:{position:'bottom'}},cutout:'55%'}
+});
+
+new Chart(document.getElementById('c5_2'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[{label:'สถานประกอบการ (แห่ง)',
+  data:[62,18,38,14,22,20,24,22,8,32,16,6,10],backgroundColor:OLIVE}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'แห่ง'}}}}
+});
+
+// ============ PAGE 6 ============
+new Chart(document.getElementById('c6_1'),{
+  type:'line',
+  data:{labels:['2564','2565','2566','2567','2568'],datasets:[
+    {label:'ข้าวเจ้าหอมมะลิ',data:[14200,15400,16800,17200,16400],borderColor:OLIVE,tension:.3},
+    {label:'ข้าวเหนียว กข-6',data:[13800,15200,17400,19200,18400],borderColor:ORANGE,tension:.3},
+    {label:'ข้าวเจ้าขาว 5%',data:[11200,12100,13200,13800,13200],borderColor:OLIVE3,tension:.3}
+  ]},
+  options:{plugins:{legend:{position:'bottom'}},scales:{y:{title:{display:true,text:'บาท/ตัน'}}}}
+});
+
+new Chart(document.getElementById('c6_2'),{
+  type:'bar',
+  data:{labels:['หอมมะลิ','กข-6','สันป่าตอง','ขาว 5%','ขาว 25%'],
+  datasets:[
+    {label:'ราคาต่ำสุด',data:[15200,14800,13200,12400,9800],backgroundColor:OLIVE3},
+    {label:'ราคาสูงสุด',data:[17800,19800,16400,14200,12200],backgroundColor:ORANGE}
+  ]},
+  options:{plugins:{legend:{position:'bottom'}},scales:{y:{title:{display:true,text:'บาท/ตัน'}}}}
+});
+
+new Chart(document.getElementById('c6_3'),{
+  type:'line',
+  data:{labels:['ความชื้น 10%','15%','20%','25%','30%'],
+  datasets:[{label:'ราคาข้าวเจ้า (บาท/ตัน)',data:[16800,15200,13400,11800,10200],
+  borderColor:ORANGE,backgroundColor:'rgba(233,154,69,.15)',fill:true,tension:.3}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'บาท/ตัน'}}}}
+});
+
+new Chart(document.getElementById('c6_4'),{
+  type:'bar',
+  data:{labels:['ค่าเมล็ดพันธุ์','ค่าปุ๋ย','ค่าป้องกัน','ค่าแรง','ค่าเตรียมดิน','ค่าอื่นๆ'],
+  datasets:[
+    {label:'นาปี',data:[820,1640,680,1240,720,320],backgroundColor:OLIVE},
+    {label:'นาปรัง',data:[920,1840,780,1480,820,440],backgroundColor:ORANGE}
+  ]},
+  options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'บาท/ไร่'}}}}
+});
+
+new Chart(document.getElementById('c6_5'),{
+  type:'bar',
+  data:{labels:['หอมมะลิ','กข-6','สันป่าตอง','ขาวดอกมะลิ','ปทุมธานี 1'],
+  datasets:[{label:'ราคาเมล็ดพันธุ์ (บาท/กก.)',data:[38,32,28,24,22],backgroundColor:OLIVE}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'บาท/กก.'}}}}
+});
+
+// ============ PAGE 7 ============
+new Chart(document.getElementById('c7_1'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[{label:'ผู้ประกอบการแปรรูป (กลุ่ม/ราย)',
+  data:[28,8,18,10,12,10,14,12,4,16,8,2,6],backgroundColor:ORANGE}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'กลุ่ม/ราย'}}}}
+});
+
+new Chart(document.getElementById('c7_2'),{
+  type:'bar',
+  data:{labels:dLabels,datasets:[{label:'วิสาหกิจชุมชน (แห่ง)',
+  data:[48,18,32,22,26,24,28,26,12,34,22,8,14],backgroundColor:OLIVE}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'แห่ง'}}}}
+});
+</script>
+</body>
+</html>
